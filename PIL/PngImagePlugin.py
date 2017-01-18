@@ -751,8 +751,11 @@ def _save(im, fp, filename, chunk=putchunk, check=0):
             transparency = max(0, min(65535, transparency))
             chunk(fp, b"tRNS", o16(transparency))
         elif im.mode == "RGB":
-            red, green, blue = transparency
-            chunk(fp, b"tRNS", o16(red) + o16(green) + o16(blue))
+            if isinstance(transparency, int):
+                chunk(fp, b"tRNS", o16(transparency) + o16(transparency) + o16(transparency))
+            elif isinstance(transparency, bytes) and len(transparency) == 3:
+                red, green, blue = transparency
+                chunk(fp, b"tRNS", o16(red) + o16(green) + o16(blue))            
         else:
             if "transparency" in im.encoderinfo:
                 # don't bother with transparency if it's an RGBA
